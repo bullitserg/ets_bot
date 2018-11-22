@@ -5,6 +5,7 @@ import bot_workers.checks_workers as checks_workers
 import bot_workers.kaspersky_workers as kaspersky_workers
 import bot_workers.nagios_workers as nagios_workers
 import bot_workers.reports_workers as reports_workers
+import bot_workers.ds_workers as ds_workers
 
 
 # обработка колбэков
@@ -61,6 +62,10 @@ def callback_query_handler(bot, update):
 
         elif hasattr(reports_workers, sh_worker):
             worker_call = getattr(reports_workers, sh_worker)
+            return worker_call(bot, update, USER_DATA)
+
+        elif hasattr(ds_workers, sh_worker):
+            worker_call = getattr(ds_workers, sh_worker)
             return worker_call(bot, update, USER_DATA)
 
         else:

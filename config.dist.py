@@ -27,6 +27,7 @@ bad_service = ['Check NETIS Integration']
 
 reports_procedure_requests_dir = 'C:/Users/belim/PycharmProjects/ets_bot/data/reports/reports_procedure_requests'
 reports_fine_check_dir = 'C:/Users/belim/PycharmProjects/ets_bot/data/reports/reports_fine_check'
+ds_status_dir = 'C:/Users/belim/PycharmProjects/ets_bot/data/reports/ds_status'
 
 # создаем словари, заполняемые на любую глубину по вызову ключа
 tree = lambda: defaultdict(tree)

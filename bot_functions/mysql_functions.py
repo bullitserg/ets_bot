@@ -3,6 +3,7 @@ from bot_functions.bot_functions import *
 from bot_functions.other_functions import last_decade_for_mysql
 from bot_queries import bot_queries
 from bot_queries import user_queries
+from bot_queries import ds_queries
 
 
 class BotDbFunctions:
@@ -96,3 +97,10 @@ class SqlEdoFunctions:
 
     def get_account_error(self, inn):
         return self.SQL_EDO_CONNECTION.execute_query(user_queries.report_inn_get_account_error_query % str(inn))
+
+    def get_request_ds_status_info(self, procedure_number, inn_str):
+        procedure_number = str(procedure_number)
+        return self.SQL_EDO_CONNECTION.execute_query(ds_queries.get_request_ds_status_info_query %
+                                                     (procedure_number, inn_str),
+                                                     dicted=True)
+
