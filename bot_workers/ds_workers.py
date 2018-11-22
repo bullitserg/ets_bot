@@ -10,7 +10,7 @@ import re
 # ВОРКЕРЫ
 # ОПРЕДЕЛЯЮТСЯ ОБЯЗАТЕЛЬНО ЧЕРЕЗ (bot, update, user_data)
 
-# проверка существования пользователя
+# проверка статуса денег по процедуре
 def text_get_request_ds_status_info(bot, update, user_data):
     bot_answer = ''
 
@@ -68,6 +68,46 @@ def text_get_request_ds_status_info(bot, update, user_data):
     worker_logger(username, chat_id, text=bot_answer)
     send_message_by_parts(bot, chat_id, bot_answer)
     no_wait(bot, update, user_data)
+
+
+# проверка статуса по guid
+def text_check_operation_status_by_guid(bot, update, user_data):
+    bot_answer = ''
+
+    username = get_username(update)
+    chat_id = get_chat_id(update)
+    message_text = get_message_text(update).strip()
+
+    guid = re.findall(r'^(.{33})$', message_text)
+    if guid:
+        guid = guid[0]
+    else:
+        bot_answer += 'Указан некорректный GUID'
+        worker_logger(username, chat_id, text=bot_answer)
+        standard_message(update, text=bot_answer)
+        no_wait(bot, update, user_data)
+        return
+
+    operation_status_by_guid = SqlEdoFunctions().check_operation_status_by_guid(guid)
+
+    if not operation_status_by_guid:
+        bot_answer += 'Платежная информация не найдена'
+    else:
+        for info in operation_status_by_guid:
+            bot_answer += info[0]
+
+    worker_logger(username, chat_id, text=bot_answer)
+    standard_message(update, text=bot_answer)
+    no_wait(bot, update, user_data)
+
+
+
+
+
+
+
+
+
 
 
 

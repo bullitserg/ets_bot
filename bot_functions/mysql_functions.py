@@ -17,16 +17,16 @@ class BotDbFunctions:
 
     # Функция получения help страницы
     def get_help(self, chat_id):
-        help_page = '''<b>ПОЛЬЗОВАТЕЛЬСКОЕ МЕНЮ</b>\n'''
-        try:
-            help_page += self.BOT_DB_CONNECTION.execute_query(bot_queries.get_help_query % chat_id)[0][0]
-        except TypeError:
-            help_page += '  Извините, пользовательские команды отсутствуют'
-        help_page += '''\n\n<b>ОСНОВНОЕ МЕНЮ</b>
+        help_page = '''\n\n<b>ОСНОВНОЕ МЕНЮ</b>
         /menu    меню
         /repeat   повтор последней команды
         /help    список доступных команд
         /exit    выход'''
+        help_page += '''<b>ПОЛЬЗОВАТЕЛЬСКОЕ МЕНЮ</b>\n'''
+        try:
+            help_page += self.BOT_DB_CONNECTION.execute_query(bot_queries.get_help_query % chat_id)[0][0]
+        except TypeError:
+            help_page += '  Извините, пользовательские команды отсутствуют'
         return help_page
 
     # Проверка регистрации пользователя
@@ -104,3 +104,6 @@ class SqlEdoFunctions:
                                                      (procedure_number, inn_str),
                                                      dicted=True)
 
+    def check_operation_status_by_guid(self, guid):
+        guid = str(guid)
+        return self.SQL_EDO_CONNECTION.execute_query(ds_queries.check_operation_status_by_guid_query % guid)
