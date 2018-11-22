@@ -56,10 +56,10 @@ def text_get_request_ds_status_info(bot, update, user_data):
                                      ['ИНН', 'Дата операции', 'Сумма', 'Статус',
                                       'Описание', 'Банк', 'Код статуса', 'GUID'])
         excel_l.set_column_width(100, 75, 150, 250, 250, 75, 50, 300)
-        excel_doc = excel_f.save_file(save_dir=ds_status_dir, file_name='Отчет по ДС ' + str(procedure_number))
+        excel_doc = excel_f.save_file(save_dir=ds_status_dir, file_name='DS_report_ ' + str(procedure_number))
         bot.send_document(chat_id=chat_id,
                           document=open(excel_doc, 'rb'),
-                          caption='DS_report_%s' % procedure_number)
+                          caption='Отчет по процедуре %s' % procedure_number)
 
     for r in request_ds_status_info:
         line = 'ИНН %(inn)s: %(operation_status_text)s %(amount)s (%(operation_datetime)s)\n' % r
