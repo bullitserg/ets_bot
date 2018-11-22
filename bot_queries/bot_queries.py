@@ -46,13 +46,13 @@ GROUP BY menu_type
 get_help_query = '''SELECT
   GROUP_CONCAT(
   IF(m.menu_level=1,
-  IF(m.help_string IS NULL, CONCAT('<b>', m.button_name, '</b>'), CONCAT('<b>', m.button_name, '</b> <i>(', m.help_string, ')</i>')),
-  CONCAT('- ', IF(m.help_string IS NULL, m.button_name, CONCAT(m.button_name, '\n    ', CONCAT('<i>(', m.help_string, ')</i>'))))) ORDER BY m.menu_type, m.menu_level SEPARATOR '\n') AS help_data
+  IF(m.help_string IS NULL, m.button_name, CONCAT(m.button_name, ' (', m.help_string, ')')),
+  CONCAT('- ', IF(m.help_string IS NULL, m.button_name, CONCAT(m.button_name, '\n    ', m.help_string)))) ORDER BY m.menu_type, m.menu_level SEPARATOR '\n') AS help_data
 FROM user u
   JOIN user_menu_permission ump
     ON ump.chat_id = u.chat_id AND ump.archive = 0
   JOIN menu m
     ON m.id = ump.menu_id AND m.archive = 0
-WHERE u.chat_id = %s
+WHERE u.chat_id = '%s'
 AND u.archive = 0
  ORDER BY m.submenu_type, m.menu_level;'''

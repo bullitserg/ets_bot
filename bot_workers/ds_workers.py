@@ -78,7 +78,7 @@ def text_check_operation_status_by_guid(bot, update, user_data):
     chat_id = get_chat_id(update)
     message_text = get_message_text(update).strip()
 
-    guid = re.findall(r'^(.{33})$', message_text)
+    guid = re.findall(r'^(.{32})$', message_text)
     if guid:
         guid = guid[0]
     else:
