@@ -27,7 +27,7 @@ def main():
 #    job_queue.run_repeating(jobs.check_nagios, interval=nagios_check_interval, first=0)
 #    job_queue.run_repeating(jobs.check_monitoring, interval=monitoring_check_interval, first=0)
     job_queue.run_repeating(jobs.unlogin_by_timeout, interval=unlogin_timeout, first=0)
-    updater.start_polling()
+    updater.start_polling(poll_interval=poll_interval)
     updater.idle()
 
 if __name__ == '__main__':

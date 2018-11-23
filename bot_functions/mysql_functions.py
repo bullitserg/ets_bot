@@ -81,8 +81,8 @@ class Sql44DbFunctions:
         # возвращаем tuple (top, data)
         return get_query_top(user_queries.reports_fine_check_query), \
                self.SQL_44_DB_CONNECTION.execute_query(user_queries.reports_fine_check_query %
-                                                      (last_decade_for_mysql(),
-                                                       inn))
+                                                       (last_decade_for_mysql(),
+                                                        inn))
 
     def get_user_exists(self, login):
         return self.SQL_44_DB_CONNECTION.execute_query(user_queries.reports_user_exists_query % login)
@@ -107,3 +107,9 @@ class SqlEdoFunctions:
     def check_operation_status_by_guid(self, guid):
         guid = str(guid)
         return self.SQL_EDO_CONNECTION.execute_query(ds_queries.check_operation_status_by_guid_query % guid)
+
+    def get_package_info_by_guid(self, guid):
+        guid = str(guid)
+        return self.SQL_EDO_CONNECTION.execute_query(ds_queries.get_package_info_by_guid_query % (guid, guid))
+
+

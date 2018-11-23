@@ -3,7 +3,7 @@ from bot_functions.bot_functions import get_chat_id, get_message_text
 from bot_functions.bot_functions import no_wait, standard_message, get_username, send_message_by_parts
 from bot_functions.mysql_functions import Sql44DbFunctions, SqlEdoFunctions
 from ets.ets_excel_creator import Excel
-from config import ds_status_dir
+from config import ds_status_dir, ds_status_by_guid_dir
 import re
 
 
@@ -89,6 +89,21 @@ def text_check_operation_status_by_guid(bot, update, user_data):
         return
 
     operation_status_by_guid = SqlEdoFunctions().check_operation_status_by_guid(guid)
+    package_info_by_guid = SqlEdoFunctions().get_package_info_by_guid(guid)
+
+    if package_info_by_guid:
+        excel_f = Excel()
+        excel_l = excel_f.create_list('GUID info')
+        excel_l.write_data_from_iter(package_info_by_guid, top_line=['id', 'msg_id', 'correlation_id', 'create_date',
+                                                                     'exchange_date', 'source', 'raw_body',
+                                                                     'destination', 'document_type', 'document',
+                                                                     'signature', 'response_date', 'response_code',
+                                                                     'response_text', 'status', 'error_text'])
+        excel_l.set_column_width(50, 260, 260, 100, 100, 120, 300, 120, 120, 300, 300, 100, 120, 200, 50, 200)
+        excel_doc = excel_f.save_file(save_dir=ds_status_by_guid_dir, file_name=str(guid))
+        bot.send_document(chat_id=chat_id,
+                          document=open(excel_doc, 'rb'),
+                          caption='Отчет по GUID %s' % guid)
 
     if not operation_status_by_guid:
         bot_answer += 'Платежная информация не найдена'

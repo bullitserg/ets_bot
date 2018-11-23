@@ -45,8 +45,31 @@ check_operation_status_by_guid_query = '''SELECT
   WHEN 0 THEN IF(p.type = 'block', 'Статус блокировки неизвестен', IF(p.type = 'release', 'Статус разблокировки неизвестен', IF(p.type = 'commission', 'Статус списания комиссии неизвестен', '-')))
   WHEN 1 THEN IF(p.type = 'block', 'Заблокировано', IF(p.type = 'release', 'Разблокировано', IF(p.type = 'commission', 'Списана комиссия', '-')))
   WHEN 2 THEN IF(p.type = 'block', 'Не заблокировано', IF(p.type = 'release', 'Не разблокировано', IF(p.type = 'commission', 'Ошибка списания комиссии', '-')))
-  END, ' (код ', p.status, ')'), IF(p.status IN (2, -10, -30), p.description, ''))) AS info
+  END, ' (код ', p.status, ')'), IF(p.status IN (2, -10, -30), p.description, NULL))) AS info
 FROM payment p
 JOIN bank b ON b.code = p.bank_id
-WHERE p.guid = 'CD2AF24B8D818F32606206156F8EB71D'
+WHERE p.guid = '%s'
 ;'''
+
+
+get_package_info_by_guid_query = '''SELECT
+   p.id,
+   p.msg_id,
+   p.correlation_id,
+   p.create_date,
+   p.exchange_date,
+   p.source,
+   p.raw_body,
+   p.destination,
+   p.document_type,
+   p.document,
+   p.signature,
+   p.response_date,
+   p.response_code,
+   p.response_text,
+   p.status,
+   p.error_text
+  FROM package p
+  WHERE p.msg_id = '%s'
+  OR p.correlation_id = '%s'
+  ;'''
