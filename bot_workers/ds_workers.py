@@ -42,7 +42,7 @@ def text_get_request_ds_status_info(bot, update, user_data):
         no_wait(bot, update, user_data)
         return
 
-    if len(request_ds_status_info) > 1:
+    if not inn:
         excel_f = Excel()
         excel_l = excel_f.create_list('Статус ДС')
         excel_l.write_data_from_iter([[d['inn'],
