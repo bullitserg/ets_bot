@@ -99,3 +99,16 @@ def send_message_by_parts(bot, chat_id, text):
                          )
         text = text[message_max_len:]
 
+
+def dialog(bot, update, user_data, function, dialog_message, text_on_no):
+    chat_id = get_chat_id(update)
+    dialog_menu = build_menu([['Да', 'Нет'], ['dialog_yes', 'dialog_no']])
+
+    bot.send_message(text=dialog_message,
+                     chat_id=chat_id,
+                     reply_markup=dialog_menu)
+
+    user_data[chat_id]['dialog_function'] = function
+    user_data[chat_id]['dialog_answer_on_no'] = text_on_no
+
+

@@ -112,4 +112,10 @@ class SqlEdoFunctions:
         guid = str(guid)
         return self.SQL_EDO_CONNECTION.execute_query(ds_queries.get_package_info_by_guid_query % (guid, guid))
 
+    def get_block_info(self, purchase_number, inn):
+        return self.SQL_EDO_CONNECTION.execute_query(ds_queries.get_block_info_query % (str(purchase_number),
+                                                                                        str(inn)),
+                                                     dicted=True)
+
+
 

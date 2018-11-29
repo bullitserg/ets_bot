@@ -4,7 +4,12 @@ from bot_functions.bot_functions import no_wait, standard_message, get_username,
 from bot_functions.mysql_functions import Sql44DbFunctions, SqlEdoFunctions
 from ets.ets_excel_creator import Excel
 from config import ds_status_dir, ds_status_by_guid_dir
+from bot_functions.other_functions import write_ds_log
+from config import ds_log_file
+from os.path import normpath
 import re
+import ets.ets_ds_lib as ds
+from bot_functions.bot_functions import dialog
 
 
 # ВОРКЕРЫ
@@ -116,7 +121,144 @@ def text_check_operation_status_by_guid(bot, update, user_data):
     no_wait(bot, update, user_data)
 
 
+# блокировка ДС
+def text_blocking_ds(bot, update, user_data):
+    bot_answer = ''
 
+    username = get_username(update)
+    chat_id = get_chat_id(update)
+    message_text = get_message_text(update).strip()
+
+    purchase_inn_data = re.findall(r'^([0-9]{19})\s([0-9]{6,})$', message_text)
+
+    if not purchase_inn_data:
+        bot_answer += 'Указаны некорректные данные'
+        worker_logger(username, chat_id, text=bot_answer)
+        standard_message(update, text=bot_answer)
+        no_wait(bot, update, user_data)
+        return
+
+    procedure_number, inn = purchase_inn_data[0]
+    request_ds_data = SqlEdoFunctions().get_block_info(procedure_number, inn)
+
+    if not request_ds_data:
+        bot_answer += 'Не найдено данных для блокировки'
+        worker_logger(username, chat_id, text=bot_answer)
+        standard_message(update, text=bot_answer)
+        no_wait(bot, update, user_data)
+        return
+
+    request_ds_data = request_ds_data[0]
+
+    bot_answer += 'Сведения о блокировке:\nAppID: %s\nСчет: %s (%s)\nСумма: %s' % (
+        request_ds_data['app_id'],
+        request_ds_data['account'],
+        request_ds_data['bank_id'],
+        request_ds_data['amount'])
+
+    worker_logger(username, chat_id, text=bot_answer)
+    standard_message(update, text=bot_answer)
+    no_wait(bot, update, user_data)
+
+    def block_dialog():
+        answer = ''
+        guid, error = ds.block(request_ds_data['account'],
+                               request_ds_data['bank_id'],
+                               request_ds_data['amount'],
+                               request_ds_data['app_id'])
+
+        write_ds_log('BLOCK', username, chat_id, procedure_number, request_ds_data['request_id'], inn,
+                     request_ds_data['amount'], request_ds_data['account'],
+                     request_ds_data['bank_id'], guid)
+
+        if not error:
+            answer += 'Блокировка проведена. GUID: %s' % guid
+        else:
+            answer += 'Ошибка блокировки: %s' % error
+        return answer
+
+    dialog(bot, update, user_data, block_dialog, 'Заблокировать ДС?', 'Блокировка отменена')
+
+
+# разблокировка ДС
+def text_unlocking_ds(bot, update, user_data):
+    bot_answer = ''
+
+    username = get_username(update)
+    chat_id = get_chat_id(update)
+    message_text = get_message_text(update).strip()
+
+    purchase_inn_data = re.findall(r'^([0-9]{19})\s([0-9]{6,})$', message_text)
+
+    if not purchase_inn_data:
+        bot_answer += 'Указаны некорректные данные'
+        worker_logger(username, chat_id, text=bot_answer)
+        standard_message(update, text=bot_answer)
+        no_wait(bot, update, user_data)
+        return
+
+    procedure_number, inn = purchase_inn_data[0]
+    request_ds_data = SqlEdoFunctions().get_block_info(procedure_number, inn)
+
+    if not request_ds_data:
+        bot_answer += 'Не найдено данных для разблокировки'
+        worker_logger(username, chat_id, text=bot_answer)
+        standard_message(update, text=bot_answer)
+        no_wait(bot, update, user_data)
+        return
+
+    request_ds_data = request_ds_data[0]
+
+    bot_answer += 'Сведения о разблокировке:\nAppID: %s\nСчет: %s (%s)\nСумма: %s' % (
+        request_ds_data['app_id'],
+        request_ds_data['account'],
+        request_ds_data['bank_id'],
+        request_ds_data['amount'])
+
+    worker_logger(username, chat_id, text=bot_answer)
+    standard_message(update, text=bot_answer)
+    no_wait(bot, update, user_data)
+
+    def unlock_dialog():
+        answer = ''
+
+        guid, error = ds.unlock(request_ds_data['account'],
+                                request_ds_data['bank_id'],
+                                request_ds_data['amount'],
+                                request_ds_data['app_id'])
+
+        write_ds_log('UNLOCK', username, chat_id, procedure_number, request_ds_data['request_id'], inn,
+                     request_ds_data['amount'], request_ds_data['account'],
+                     request_ds_data['bank_id'], guid)
+
+        if not error:
+            answer += 'Разблокировка проведена. GUID: %s' % guid
+        else:
+            answer += 'Ошибка разблокировки: %s' % error
+        return answer
+
+    dialog(bot, update, user_data, unlock_dialog, 'Разблокировать ДС?', 'Разблокировка отменена')
+
+
+def callback_check_ds_log(bot, update, user_data):
+    bot_answer = ''
+
+    username = get_username(update)
+    chat_id = get_chat_id(update)
+
+    with open(normpath(ds_log_file), mode='r', encoding='utf8') as o_ds_log:
+        bot_answer += 'Последние платежные события:\n' + '\n'.join(
+            [re.findall(r'(^.*?) #', l)[0] for l in sorted(o_ds_log.readlines()[-3:], reverse=True)]
+        )
+
+    bot.send_document(chat_id=chat_id,
+                      document=open(normpath(ds_log_file), 'rb'),
+                      caption='Сведения о платежных операциях')
+
+    worker_logger(username, chat_id, text=bot_answer)
+    send_message_by_parts(bot, chat_id, bot_answer)
+    no_wait(bot, update, user_data)
+    return
 
 
 

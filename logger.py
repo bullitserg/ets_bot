@@ -5,6 +5,8 @@ from config import log_format
 logging.basicConfig(format=log_format,
                     level=logging.INFO)
 
+logging.getLogger("requests").setLevel(logging.ERROR)
+
 logger = logging.getLogger(__name__)
 
 

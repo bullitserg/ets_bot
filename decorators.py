@@ -63,3 +63,23 @@ def is_activity(user_data):
     return decorator
 
 
+# сброс данных по диалогу
+def drop_dialog(user_data):
+    def decorator(func):
+        @wraps(func)
+        def wrapped(bot, update, *args, **kwargs):
+            try:
+                chat_id = update.message.chat_id
+            except AttributeError:
+                chat_id = update.callback_query.message.chat.id
+            f = func(bot, update, *args, **kwargs)
+            try:
+                del user_data[chat_id]['dialog_function']
+                del user_data[chat_id]['dialog_answer_on_no']
+            except KeyError:
+                pass
+            return f
+        return wrapped
+    return decorator
+
+

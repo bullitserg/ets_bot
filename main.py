@@ -11,10 +11,10 @@ def main():
     job_queue = updater.job_queue
 
     # ADD HANDLERS
-
     updater.dispatcher.add_error_handler(error_handlers.error_handler)
     updater.dispatcher.add_handler(RegexHandler(authorisation_regexp, text_handlers.authorisation_handler))
     updater.dispatcher.add_handler(MessageHandler(Filters.text, text_handlers.text_handler))
+    updater.dispatcher.add_handler(CallbackQueryHandler(callback_handlers.callback_dialog_handler, pattern='dialog_.*'))
     updater.dispatcher.add_handler(CallbackQueryHandler(callback_handlers.callback_query_handler))
     updater.dispatcher.add_handler(CommandHandler('start', command_handlers.start_handler))
     updater.dispatcher.add_handler(CommandHandler('exit', command_handlers.exit_handler))

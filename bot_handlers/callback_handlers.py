@@ -1,11 +1,12 @@
 import decorators
 from config import *
-from logger import logger
+from logger import logger, chat_info_logger
 import bot_workers.checks_workers as checks_workers
 import bot_workers.kaspersky_workers as kaspersky_workers
 import bot_workers.nagios_workers as nagios_workers
 import bot_workers.reports_workers as reports_workers
 import bot_workers.ds_workers as ds_workers
+from bot_functions.bot_functions import standard_message, get_username
 
 
 # обработка колбэков
@@ -71,6 +72,28 @@ def callback_query_handler(bot, update):
         else:
             logger.info('%s: Worker %s not exists' % (__name__, sh_worker))
 
+
+# обработка колбэков диалога
+@decorators.only_registered
+@decorators.only_authorised(USER_DATA)
+@decorators.is_activity(USER_DATA)
+def callback_dialog_handler(bot, update):
+    username = get_username(update)
+    query = update.callback_query
+    chat_id = query.message.chat_id
+
+    update.callback_query.message.delete()
+
+    if query['data'] == 'dialog_yes':
+        message = USER_DATA[chat_id]['dialog_function']()
+    else:
+        message = USER_DATA[chat_id]['dialog_answer_on_no']
+
+    bot.send_message(text=message,
+                     chat_id=chat_id
+                     )
+
+    chat_info_logger(username, chat_id, message)
 
 
 

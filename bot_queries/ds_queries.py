@@ -73,3 +73,27 @@ get_package_info_by_guid_query = '''SELECT
   WHERE p.msg_id = '%s'
   OR p.correlation_id = '%s'
   ;'''
+
+
+get_block_info_query = '''SELECT
+  p.purchase_number AS procedure_number,
+  p.request_id,
+  p.account,
+  p.bank_id,
+  p.amount,
+  CONCAT(p.purchase_number, "-", p.request_id) AS app_id
+FROM payment p
+WHERE p.id = (SELECT
+    MIN(p.id)
+  FROM payment p
+  WHERE p.purchase_number = '%s'
+  AND p.inn = '%s'
+  AND p.type = 'block');'''
+
+
+
+
+
+
+
+

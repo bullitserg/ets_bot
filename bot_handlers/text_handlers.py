@@ -14,6 +14,7 @@ import re
 # обработка авторизации
 @decorators.only_registered
 @decorators.is_activity(USER_DATA)
+@decorators.drop_dialog(USER_DATA)
 def authorisation_handler(bot, update):
     chat_id = update.message.chat_id
     username = update.message.chat.username
@@ -89,4 +90,6 @@ def text_handler(bot, update):
         # если воркера нет, значит не ожидается никакого текста
         update.message.reply_text('Неизвестная команда.\n /help для справки',
                                   reply_markup=keyboards.reply_markup_keyboard_standard)
+
+
 

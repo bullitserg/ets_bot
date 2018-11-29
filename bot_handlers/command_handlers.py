@@ -10,12 +10,14 @@ import keyboards
 @decorators.only_registered
 @decorators.only_authorised(USER_DATA)
 @decorators.is_activity(USER_DATA)
+@decorators.drop_dialog(USER_DATA)
 # КНОПКА START
 def start_handler(bot, update):
     pass
 
 
 # КНОПКА ABOUT
+@decorators.drop_dialog(USER_DATA)
 def about_handler(bot, update):
     send_about(bot, update)
 
@@ -24,6 +26,7 @@ def about_handler(bot, update):
 @decorators.only_registered
 @decorators.only_authorised(USER_DATA)
 @decorators.is_activity(USER_DATA)
+@decorators.drop_dialog(USER_DATA)
 def help_handler(bot, update):
     chat_id = update.message.chat_id
     username = update.message.chat.username
@@ -41,6 +44,7 @@ def help_handler(bot, update):
 @decorators.only_registered
 @decorators.only_authorised(USER_DATA)
 @decorators.is_activity(USER_DATA)
+@decorators.drop_dialog(USER_DATA)
 def exit_handler(bot, update):
     chat_id = update.message.chat_id
     username = update.message.chat.username
@@ -55,6 +59,7 @@ def exit_handler(bot, update):
 @decorators.only_registered
 @decorators.only_authorised(USER_DATA)
 @decorators.is_activity(USER_DATA)
+@decorators.drop_dialog(USER_DATA)
 def menu_handler(bot, update):
     chat_id = update.message.chat_id
 
@@ -70,6 +75,7 @@ def menu_handler(bot, update):
 @decorators.only_registered
 @decorators.only_authorised(USER_DATA)
 @decorators.is_activity(USER_DATA)
+@decorators.drop_dialog(USER_DATA)
 def repeat_handler(bot, update):
     chat_id = update.message.chat_id
     worker = USER_DATA[chat_id]['last_command']
