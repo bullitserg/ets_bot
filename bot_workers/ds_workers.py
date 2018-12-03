@@ -307,11 +307,13 @@ def callback_check_ds_log(bot, update, user_data):
             [re.findall(r'(^.*?) #', l)[0] for l in sorted(o_ds_log.readlines()[-3:], reverse=True)]
         )
 
-    bot_answer = bot_answer if bot_answer else 'Сведения о событиях отсутствуют'
+    if bot_answer:
+        bot.send_document(chat_id=chat_id,
+                          document=open(normpath(ds_log_file), 'rb'),
+                          caption='Сведения о платежных операциях')
 
-    bot.send_document(chat_id=chat_id,
-                      document=open(normpath(ds_log_file), 'rb'),
-                      caption='Сведения о платежных операциях')
+    else:
+        bot_answer += 'Сведения о событиях отсутствуют'
 
     worker_logger(username, chat_id, text=bot_answer)
     send_message_by_parts(bot, chat_id, bot_answer)
