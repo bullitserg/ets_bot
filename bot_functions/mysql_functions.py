@@ -104,6 +104,12 @@ class SqlEdoFunctions:
                                                      (procedure_number, inn_str),
                                                      dicted=True)
 
+    def get_commission_status_info(self, procedure_number):
+        procedure_number = str(procedure_number)
+        return self.SQL_EDO_CONNECTION.execute_query(ds_queries.get_commission_status_info_query %
+                                                     procedure_number,
+                                                     dicted=True)
+
     def check_operation_status_by_guid(self, guid):
         guid = str(guid)
         return self.SQL_EDO_CONNECTION.execute_query(ds_queries.check_operation_status_by_guid_query % guid)

@@ -28,6 +28,7 @@ bad_service = ['Check NETIS Integration']
 reports_procedure_requests_dir = 'C:/Users/belim/PycharmProjects/ets_bot/data/reports/reports_procedure_requests'
 reports_fine_check_dir = 'C:/Users/belim/PycharmProjects/ets_bot/data/reports/reports_fine_check'
 ds_status_dir = 'C:/Users/belim/PycharmProjects/ets_bot/data/reports/ds_status'
+ds_commission_dir = 'C:/Users/belim/PycharmProjects/ets_bot/data/reports/ds_commission'
 
 ds_log_file = 'C:/Users/belim/PycharmProjects/ets_bot/data/ds.log'
 
