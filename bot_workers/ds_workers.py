@@ -186,7 +186,7 @@ def text_blocking_ds(bot, update, user_data):
     chat_id = get_chat_id(update)
     message_text = get_message_text(update).strip()
 
-    purchase_inn_data = re.findall(r'^([0-9]{19})\s([0-9]{6,})$', message_text)
+    purchase_inn_data = re.findall(r'^([0-9]{11,19})\s([0-9]{6,})$', message_text)
 
     if not purchase_inn_data:
         bot_answer += 'Указаны некорректные данные'
