@@ -114,7 +114,34 @@ WHERE p.id = (SELECT
   AND p.type = 'block');'''
 
 
-
+get_inn_ds_status_info_query = '''SELECT
+  p.purchase_number,
+  p.request_id,
+  CASE p.type
+  WHEN 'block' THEN 'Блокировка'
+  WHEN 'release' THEN 'Разблокировка'
+  WHEN 'commission' THEN 'Списание комиссии'
+  END AS operation_type,
+  DATE_ADD(p.exchange_date, INTERVAL 3 HOUR) AS exchange_date,
+  IFNULL(DATE_ADD(p.response_date, INTERVAL 3 HOUR), '-') AS response_date,
+  p.amount,
+  CONCAT_WS(', ', CONCAT(CASE p.status
+  WHEN -30 THEN IF(p.type = 'block', 'Проблемная блокировка', IF(p.type = 'release', 'Проблемное разблокирование', IF(p.type = 'commission', 'Проблемное списание комиссии', '-')))
+  WHEN -10 THEN IF(p.type = 'block', 'Проблемная блокировка', IF(p.type = 'release', 'Проблемное разблокирование', IF(p.type = 'commission', 'Проблемное списание комиссии', '-')))
+  WHEN 0 THEN IF(p.type = 'block', 'Статус блокировки неизвестен', IF(p.type = 'release', 'Статус разблокировки неизвестен', IF(p.type = 'commission', 'Статус списания комиссии неизвестен', '-')))
+  WHEN 1 THEN IF(p.type = 'block', 'Заблокировано', IF(p.type = 'release', 'Разблокировано', IF(p.type = 'commission', 'Списана комиссия', '-')))
+  WHEN 2 THEN IF(p.type = 'block', 'Не заблокировано', IF(p.type = 'release', 'Не разблокировано', IF(p.type = 'commission', 'Ошибка списания комиссии', '-')))
+  END, ' (код ', p.status, ')'), IF(p.status IN (2, -10, -30), p.description, NULL)) AS info,
+  p.guid,
+  p.inn,
+  IFNULL(p.kpp, '-') AS kpp,
+  CONCAT(b.name, ' (', p.bank_id, ')') AS bank_id,
+  p.account
+FROM payment p
+JOIN bank b ON b.code = p.bank_id
+WHERE p.inn = '%s' %s
+ORDER BY p.purchase_number DESC, exchange_date
+;'''
 
 
 

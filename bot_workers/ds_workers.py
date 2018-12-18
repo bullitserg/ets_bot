@@ -3,7 +3,7 @@ from bot_functions.bot_functions import get_chat_id, get_message_text
 from bot_functions.bot_functions import no_wait, standard_message, get_username, send_message_by_parts
 from bot_functions.mysql_functions import Sql44DbFunctions, SqlEdoFunctions
 from ets.ets_excel_creator import Excel
-from config import ds_status_dir, ds_status_by_guid_dir, ds_commission_dir
+from config import ds_status_dir, ds_status_by_guid_dir, ds_commission_dir, ds_inn_status_dir
 from bot_functions.other_functions import write_ds_log
 from config import ds_log_file
 from os.path import normpath, getsize
@@ -321,7 +321,70 @@ def callback_check_ds_log(bot, update, user_data):
     return
 
 
+# проверка статуса денег по процедуре
+def text_get_inn_ds_status_info(bot, update, user_data):
+    bot_answer = ''
 
+    username = get_username(update)
+    chat_id = get_chat_id(update)
+    message_text = get_message_text(update).strip()
+
+    inn = re.findall(r'^([0-9]{10,12})[\s$]?', message_text)
+    procedure_number = re.findall(r'^[0-9]{10,12}\s+([0-9]+)$', message_text)
+
+    if inn:
+        inn = inn[0]
+    else:
+        bot_answer += 'Не указан ИНН'
+        worker_logger(username, chat_id, text=bot_answer)
+        standard_message(update, text=bot_answer)
+        no_wait(bot, update, user_data)
+        return
+
+    procedure_number = procedure_number[0] if procedure_number else None
+    procedure_number_str = "AND p.purchase_number = '%s'" % procedure_number if procedure_number else ''
+
+    inn_ds_status_info = SqlEdoFunctions().get_inn_ds_status_info(inn, procedure_number_str)
+
+    if not inn_ds_status_info:
+        bot_answer += 'Сведений по указанным данным не найдено'
+        worker_logger(username, chat_id, text=bot_answer)
+        standard_message(update, text=bot_answer)
+        no_wait(bot, update, user_data)
+        return
+
+    excel_f = Excel()
+    excel_l = excel_f.create_list('Реестр ДС')
+    excel_l.write_data_from_iter([[d['purchase_number'],
+                                   d['request_id'],
+                                   d['operation_type'],
+                                   d['exchange_date'],
+                                   d['response_date'],
+                                   d['amount'],
+                                   d['info'],
+                                   d['guid'],
+                                   d['inn'],
+                                   d['kpp'],
+                                   d['bank_id'],
+                                   d['account']] for d in inn_ds_status_info],
+                                 ['Закупка', 'Заявка', 'Операция', 'Дата операции',
+                                  'Дата ответа', 'Сумма', 'Информация', 'GUID', 'ИНН', 'КПП', 'Банк', 'Спецсчет'])
+
+    excel_l.set_column_width(140, 75, 150, 120, 120, 120, 160, 250, 120, 120, 150, 150)
+
+    excel_doc = excel_f.save_file(save_dir=ds_inn_status_dir, file_name='DS_INN_report_' + str(inn))
+    bot.send_document(chat_id=chat_id,
+                      document=open(excel_doc, 'rb'),
+                      caption='Отчет по ИНН %s' % inn)
+
+    if procedure_number:
+        for s in inn_ds_status_info:
+            line = '%(exchange_date)s: %(operation_type)s %(amount)s (%(info)s)\n' % s
+            bot_answer += line
+
+    worker_logger(username, chat_id, text=bot_answer)
+    send_message_by_parts(bot, chat_id, bot_answer)
+    no_wait(bot, update, user_data)
 
 
 

@@ -29,6 +29,7 @@ reports_procedure_requests_dir = 'C:/Users/belim/PycharmProjects/ets_bot/data/re
 reports_fine_check_dir = 'C:/Users/belim/PycharmProjects/ets_bot/data/reports/reports_fine_check'
 ds_status_dir = 'C:/Users/belim/PycharmProjects/ets_bot/data/reports/ds_status'
 ds_commission_dir = 'C:/Users/belim/PycharmProjects/ets_bot/data/reports/ds_commission'
+ds_inn_status_dir = 'C:/Users/belim/PycharmProjects/ets_bot/data/reports/ds_inn_status'
 
 ds_log_file = 'C:/Users/belim/PycharmProjects/ets_bot/data/ds.log'
 

@@ -123,5 +123,11 @@ class SqlEdoFunctions:
                                                                                         str(inn)),
                                                      dicted=True)
 
+    def get_inn_ds_status_info(self, inn, purchase_number_str):
+        return self.SQL_EDO_CONNECTION.execute_query(ds_queries.get_inn_ds_status_info_query % (str(inn),
+                                                                                                str(purchase_number_str)),
+                                                     dicted=True)
+
+
 
 
