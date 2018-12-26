@@ -18,13 +18,16 @@ get_request_ds_status_info_query = '''SELECT
   (
 SELECT
   p.inn,
+  p.purchase_number,
   MAX(p.exchange_date) AS max_date
 FROM payment p
 WHERE p.type IN ('release', 'block')
   AND p.purchase_number = '%s' %s
 GROUP BY p.inn
 ) AS last_do
-JOIN payment p ON p.inn = last_do.inn AND p.exchange_date = last_do.max_date
+JOIN payment p ON p.inn = last_do.inn
+ AND p.exchange_date = last_do.max_date
+ AND p.purchase_number = last_do.purchase_number
 ORDER BY p.type, last_do.max_date DESC
 ;'''
 
